@@ -1,0 +1,8 @@
+<div class="mb-2">
+    <label for="title" class="form-label">タイトル</label>
+    <input type="text" name="title" id="title" class="form-control" value="{{ diary.title or '' }}">
+</div>
+<div class="mb-2">
+    <label for="content" class="form-label">本文</label>
+    <textarea name="content" id="content" class="form-control" rows="6">{{ diary.content or ''}}</textarea>
+</div>

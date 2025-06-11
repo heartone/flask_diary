@@ -1,0 +1,43 @@
+a {
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.pre-line {
+    white-space: pre-line;
+}
+
+/* 共通 */
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dotted #ddd;
+}
+
+/* 日記関連 */
+.diary-title {
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+.diary-title a {
+    color: #46c;
+}
+.diary-title a:hover {
+    color: #996;
+}
+.diary-meta {
+    display: flex;
+    
+}
+.diary-user {
+    margin-right: 10px;
+    font-size: .9rem;
+}
+.diary-datetime {
+    font-size: .9rem;
+    color: #888;
+}

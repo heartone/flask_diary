@@ -19,4 +19,6 @@ def login_check(view):
         return view(*args, **kwargs)
     return inner
 
-from diary.views import auth
+from diary.views import auth, diaries
+
+app.register_blueprint(diaries.diary, url_prefix='/diaries')

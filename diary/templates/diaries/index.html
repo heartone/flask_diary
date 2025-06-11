@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class="page-heading">
+    <h3>日記一覧</h3>
+    <div>
+        <a href="{{ url_for('diary.new') }}">日記投稿</a>
+    </div>
+
+</div>
+<div>
+    {% for diary in diaries %}
+    <div class="mb-3 pb-3 border-bottom">
+        <div class="diary-title"><a href="{{ url_for('diary.show', id=diary.id) }}">{{ diary.title }}</a></div>
+        <div class="diary-meta">
+            <div class="diary-user">{{ diary.user.name }}</div>
+            <div class="diary-datetime">{{ diary.created_at.strftime('%Y年%m月%d日 %H:%M') }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
