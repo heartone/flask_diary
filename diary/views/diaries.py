@@ -15,7 +15,7 @@ def index():
     keyword = request.args.get('keyword')
     page = request.args.get('page', default=1, type=int)
 
-    # 日記クエリ
+    # 日記クエリ（投稿日時降順）
     query = Diary.query.order_by(Diary.created_at.desc())
 
     # 自分の日記のみ取得
@@ -26,7 +26,9 @@ def index():
         word = f'%{keyword}%'
         query = query.filter(or_(Diary.title.like(word), Diary.content.like(word)))
 
+    # ページネーション付きで取得
     diaries = query.paginate(page=page, per_page=10)
+
     return render_template('diaries/index.html', diaries=diaries)
     
 # 日記詳細画面
@@ -57,7 +59,7 @@ def create():
     title = request.form.get('title') or ''
     content = request.form.get('content') or ''
 
-    # バリデーション（本当はモデルでやりたいが便宜上ここで）
+    # バリデーションメッセージの処理（本当はモデルでやりたいが便宜上ここで）
     errors = []
 
     # タイトルは必須（空文字が入ってしまわないように）
@@ -130,7 +132,7 @@ def update(id):
     
     if errors:
         for e in errors:
-            flash(e, 'dangeR')
+            flash(e, 'danger')
         return redirect(url_for('diary.edit', id=id))
 
     diary.title = title 
