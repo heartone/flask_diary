@@ -1,0 +1,8 @@
+{% extends 'layout.html' %}
+{% block body %}
+<h3>トップページ</h3>
+<p>{{ user.name }}さん、ようこそ！</p>
+<form action="{{ url_for('logout') }}" method="post">
+    <button class="btn btn-secondary">ログアウト</button>
+</form>
+{% endblock %}
