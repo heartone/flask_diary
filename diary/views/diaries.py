@@ -1,4 +1,5 @@
 from flask import render_template, request, url_for, redirect, session, flash, Blueprint
+from sqlalchemy import or_
 from diary import app, login_check
 from lib.db import db
 from lib.models import Diary
@@ -10,12 +11,22 @@ diary = Blueprint('diary', __name__)
 @diary.route('/')
 @login_check
 def index():
+    # リクエストパラメータ
+    keyword = request.args.get('keyword')
+    page = request.args.get('page', default=1, type=int)
+
+    # 日記クエリ
     query = Diary.query.order_by(Diary.created_at.desc())
 
     # 自分の日記のみ取得
     query = query.filter(Diary.user_id == session.get('auth_id'))
 
-    diaries = query.all()
+    # キーワード検索
+    if keyword:
+        word = f'%{keyword}%'
+        query = query.filter(or_(Diary.title.like(word), Diary.content.like(word)))
+
+    diaries = query.paginate(page=page, per_page=10)
     return render_template('diaries/index.html', diaries=diaries)
     
 # 日記詳細画面
@@ -25,7 +36,7 @@ def show(id):
     diary = Diary.query.get(id)
 
     # 認可チェック
-    if diary and diary.user_id != session.get('auth_id'):
+    if not diary or diary.user_id != session.get('auth_id'):
         flash('不正なアクセスです', 'danger')
         return redirect(url_for('diary.index'))
 
@@ -88,7 +99,7 @@ def edit(id):
     diary = Diary.query.get(id)
 
     # 認可チェック
-    if diary and diary.user_id != session.get('auth_id'):
+    if not diary or diary.user_id != session.get('auth_id'):
         flash('不正なアクセスです', 'danger')
         return redirect(url_for('diary.index'))
 
@@ -101,7 +112,7 @@ def update(id):
     diary = Diary.query.get(id)
 
     # 認可チェック
-    if diary and diary.user_id != session.get('auth_id'):
+    if not diary or diary.user_id != session.get('auth_id'):
         flash('不正なアクセスです', 'danger')
         return redirect(url_for('diary.index'))
     
@@ -142,7 +153,7 @@ def delete(id):
     diary = Diary.query.get(id)
 
     # 認可チェック
-    if diary and diary.user_id != session.get('auth_id'):
+    if not diary or diary.user_id != session.get('auth_id'):
         flash('不正なアクセスです', 'danger')
         return redirect(url_for('diary.index'))
     

@@ -1,21 +1,45 @@
 {% extends 'layout.html' %}
 {% block body %}
-<div class="page-heading">
-    <h3>日記一覧</h3>
-    <div>
-        <a href="{{ url_for('diary.new') }}">日記投稿</a>
+<div class="row">
+    <div class="col-3">
+        <form action="{{ url_for('diary.index') }}" method="get" class="card">
+            <div class="card-header">日記検索</div>
+            <div class="card-body">
+                <label for="search-keyword" class="form-label">キーワード</label>
+                <input type="search" name="keyword" id="search-keyword" class="form-control" value="{{ request.args.get('keyword') or '' }}" placeholder="タイトル・本文">
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-success w-100">検索</button>
+            </div>
+        </form>
     </div>
-
-</div>
-<div>
-    {% for diary in diaries %}
-    <div class="mb-3 pb-3 border-bottom">
-        <div class="diary-title"><a href="{{ url_for('diary.show', id=diary.id) }}">{{ diary.title }}</a></div>
-        <div class="diary-meta">
-            <div class="diary-user">{{ diary.user.name }}</div>
-            <div class="diary-datetime">{{ diary.created_at.strftime('%Y年%m月%d日 %H:%M') }}</div>
+    <div class="col-9">
+        <div class="page-heading">
+            <h3>日記一覧</h3>
+            <div>
+                <a href="{{ url_for('diary.new') }}">日記投稿</a>
+            </div>
         </div>
+        <div>
+            {% for diary in diaries %}
+            <div class="mb-3 pb-3 border-bottom">
+                <div class="diary-title"><a href="{{ url_for('diary.show', id=diary.id) }}">{{ diary.title }}</a></div>
+                <div class="diary-meta">
+                    <div class="diary-user">{{ diary.user.name }}</div>
+                    <div class="diary-datetime">{{ diary.created_at.strftime('%Y年%m月%d日 %H:%M') }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <ul class="pagination">
+            {% set page = request.args.get('page') | int or 1 %}
+            {% set keyword = request.args.get('keyword') %}
+            {% for p in diaries.iter_pages() %}
+              <li class="page-item{% if page == p %} active{% endif %}">
+                <a class="page-link" href="{{ url_for('diary.index', page=p, keyword=keyword) }} ">{{ p }}</a>
+              </li>
+            {% endfor %}
+          </ul>
     </div>
-    {% endfor %}
 </div>
 {% endblock %}
