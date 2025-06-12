@@ -5,6 +5,19 @@ from lib.db import db
 from lib.models import Diary
 from datetime import datetime 
 
+from functools import wraps
+
+# ログインチェックデコレータの定義
+def user_check(view):
+    @wraps(view)
+    def inner(*args, **kwargs):
+        diary = Diary.query.get(kwargs.get('id'))
+        if not diary or diary.user_id != session.get('auth_id'):
+            flash('不正なアクセスです', 'danger')
+            return redirect(url_for('diary.index'))
+        return view(*args, **kwargs)
+    return inner
+
 diary = Blueprint('diary', __name__)
 
 # 日記一覧画面
@@ -34,14 +47,9 @@ def index():
 # 日記詳細画面
 @diary.route('/<int:id>')
 @login_check 
+@user_check
 def show(id):
     diary = Diary.query.get(id)
-
-    # 認可チェック
-    if not diary or diary.user_id != session.get('auth_id'):
-        flash('不正なアクセスです', 'danger')
-        return redirect(url_for('diary.index'))
-
     return render_template('diaries/show.html', diary=diary)
 
 # 日記投稿画面
@@ -53,7 +61,7 @@ def new():
 
 # 日記登録処理
 @diary.route('/create', methods=['POST'])
-@login_check 
+@login_check
 def create():
     # リクエストパラメータ
     title = request.form.get('title') or ''
@@ -97,27 +105,18 @@ def create():
 # 日記編集画面
 @diary.route('/<int:id>/edit')
 @login_check 
+@user_check
 def edit(id):
     diary = Diary.query.get(id)
-
-    # 認可チェック
-    if not diary or diary.user_id != session.get('auth_id'):
-        flash('不正なアクセスです', 'danger')
-        return redirect(url_for('diary.index'))
-
     return render_template('diaries/edit.html', diary=diary)
 
 # 日記更新処理
 @diary.route('/<int:id>/update', methods=['POST'])
 @login_check 
+@user_check
 def update(id):
     diary = Diary.query.get(id)
 
-    # 認可チェック
-    if not diary or diary.user_id != session.get('auth_id'):
-        flash('不正なアクセスです', 'danger')
-        return redirect(url_for('diary.index'))
-    
     # リクエストパラメータ
     title = request.form.get('title') or ''
     content = request.form.get('content') or ''
@@ -151,13 +150,9 @@ def update(id):
 # 日記削除処理
 @diary.route('/<int:id>/delete', methods=['POST'])
 @login_check 
+@user_check
 def delete(id):
     diary = Diary.query.get(id)
-
-    # 認可チェック
-    if not diary or diary.user_id != session.get('auth_id'):
-        flash('不正なアクセスです', 'danger')
-        return redirect(url_for('diary.index'))
     
     db.session.delete(diary)
     db.session.commit()
